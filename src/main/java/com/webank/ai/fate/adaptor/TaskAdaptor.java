@@ -1,0 +1,72 @@
+package com.webank.ai.fate.adaptor;
+
+import com.baidu.highflip.core.entity.runtime.Task;
+import com.baidu.highflip.core.entity.runtime.basic.Action;
+import com.baidu.highflip.core.entity.runtime.basic.Status;
+import com.webank.ai.fate.context.FateContext;
+import lombok.Getter;
+import lombok.extern.slf4j.Slf4j;
+
+import java.util.Iterator;
+import java.util.Map;
+
+@Slf4j
+@Getter
+public class TaskAdaptor implements com.baidu.highflip.core.adaptor.TaskAdaptor {
+
+    FateContext context;
+
+    public TaskAdaptor(FateContext context) {
+        this.context = context;
+    }
+
+    @Override
+    public Task updateTask(Task task) {
+        return null;
+    }
+
+    @Override
+    public void deleteTask(Task task) {
+
+    }
+
+    @Override
+    public boolean hasTask(Task task) {
+        return false;
+    }
+
+    @Override
+    public Status getTaskStatus(Task task) {
+        return null;
+    }
+
+    @Override
+    public Task controlTask(Task task, Action action, Map<String, String> config) {
+        return null;
+    }
+
+    @Override
+    public int getTaskCount() {
+        return 0;
+    }
+
+    @Override
+    public Task getTaskByIndex(int index, Task task) {
+        return null;
+    }
+
+    @Override
+    public void invokeTask(Task task) {
+
+    }
+
+    @Override
+    public int getTaskLogCount(Task task) {
+        return 0;
+    }
+
+    @Override
+    public Iterator<String> getTaskLog(Task task, int offset, int limit) {
+        return null;
+    }
+}
