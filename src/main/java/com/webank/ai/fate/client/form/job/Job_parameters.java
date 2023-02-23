@@ -6,6 +6,8 @@ package com.webank.ai.fate.client.form.job;
 
 import lombok.Data;
 
+import java.util.Map;
+
 @Data
 public class Job_parameters {
 
@@ -35,11 +37,11 @@ public class Job_parameters {
 
     private String model_version;
 
-    private Pulsar_run pulsar_run;
+    private Map<String,Object> pulsar_run;
 
-    private Rabbitmq_run rabbitmq_run;
+    private Map<String,Object> rabbitmq_run;
 
-    private Spark_run spark_run;
+    private Map<String,Object> spark_run;
 
     private String storage_engine;
 

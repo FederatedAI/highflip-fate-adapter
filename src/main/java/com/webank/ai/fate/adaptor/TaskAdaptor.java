@@ -3,6 +3,7 @@ package com.webank.ai.fate.adaptor;
 import com.baidu.highflip.core.entity.runtime.Task;
 import com.baidu.highflip.core.entity.runtime.basic.Action;
 import com.baidu.highflip.core.entity.runtime.basic.Status;
+import com.webank.ai.fate.client.form.task.FateTask;
 import com.webank.ai.fate.context.FateContext;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
@@ -47,12 +48,13 @@ public class TaskAdaptor implements com.baidu.highflip.core.adaptor.TaskAdaptor 
 
     @Override
     public int getTaskCount() {
-        return 0;
+        return getContext().getClient().listTask(null, 1, Integer.MAX_VALUE).getData().getCount();
     }
 
     @Override
     public Task getTaskByIndex(int index, Task task) {
-        return null;
+        log.info("get task by index:{}", index);
+        return FateTask.convertToEntity(getContext().getClient().listTask(null, index+1, 1).getData().getTasks().get(0));
     }
 
     @Override

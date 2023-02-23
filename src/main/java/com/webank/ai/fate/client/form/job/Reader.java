@@ -4,8 +4,6 @@
 
 package com.webank.ai.fate.client.form.job;
 
-import com.webank.ai.fate.client.form.job.Table;
-
 public class Reader {
 
     private Table table;

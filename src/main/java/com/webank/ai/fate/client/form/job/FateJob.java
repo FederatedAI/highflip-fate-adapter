@@ -4,21 +4,23 @@
 
 package com.webank.ai.fate.client.form.job;
 
-import com.baidu.highflip.core.entity.runtime.Job;
 import com.baidu.highflip.core.entity.runtime.basic.Status;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.webank.ai.fate.client.form.FateStatus;
 import com.webank.ai.fate.client.form.dsl.Dsl;
 import com.webank.ai.fate.common.deserializer.JsonMapStringDeserializer;
 import com.webank.ai.fate.common.deserializer.JsonStringDeserializer;
 import lombok.Data;
+import lombok.extern.slf4j.Slf4j;
+import org.joda.time.DateTime;
 
-import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @Data
-public class Jobs {
+public class FateJob {
 
     private long apply_resource_time;
 
@@ -110,16 +112,16 @@ public class Jobs {
 
     private String user_id;
 
-    public static Job convertToEntity(Jobs response) {
-        Job job = new Job();
+    public static com.baidu.highflip.core.entity.runtime.Job convertToEntity(FateJob response) {
+        com.baidu.highflip.core.entity.runtime.Job job = new com.baidu.highflip.core.entity.runtime.Job();
 //        job.setJobId();
         job.setJobName(response.getName());
         job.setDescription(response.getDescription());
-        job.setCreateTime(response.getCreate_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        job.setUpdateTime(response.getUpdate_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        job.setFinishTime(response.getEnd_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        job.setCreateTime(new DateTime(response.getCreate_time()));
+        job.setUpdateTime(new DateTime(response.getUpdate_time()));
+        job.setFinishTime(new DateTime(response.getEnd_time()));
 //        job.setGraph();
-        job.setStatus(Status.valueOf(response.getStatus() + ""));
+        job.setStatus(FateStatus.convertToEntity(FateStatus.fromValue(response.getStatus())));
 //        job.setMessage();
 //        job.setIsDeleted();
 //        job.setInputTasks();

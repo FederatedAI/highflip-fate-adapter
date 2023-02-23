@@ -9,6 +9,6 @@ import java.util.List;
 public class TaskData {
 
     private int count;
-    private List<Tasks> tasks;
+    private List<FateTask> tasks;
 
 }

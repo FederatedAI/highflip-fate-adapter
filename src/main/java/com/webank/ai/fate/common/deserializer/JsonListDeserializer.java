@@ -22,10 +22,10 @@ public class JsonListDeserializer extends StdDeserializer<List<String>> {
         List<String> result = new ArrayList<>();
         if (node.isArray()) {
             for (JsonNode element : node) {
-                result.add(element.toString());
+                result.add(element.asText());
             }
         } else if (node.isObject()) {
-            result.add(node.toString());
+            result.add(node.asText());
         } else {
             //maybe nothing?
         }
