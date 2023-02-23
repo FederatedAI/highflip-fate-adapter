@@ -1,8 +1,7 @@
 package com.webank.ai.fate.client.form.dsl;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
-import com.webank.ai.fate.common.deserializer.JsonMapMapDeserializer;
+import com.webank.ai.fate.common.deserializer.JsonMapMapObjectDeserializer;
 import lombok.Data;
 
 import java.util.Map;
@@ -10,12 +9,13 @@ import java.util.Map;
 @Data
 public class RoleConf {
 
-    @JsonAnyGetter
-    @JsonDeserialize(using = JsonMapMapDeserializer.class)
-    private Map<String, Map<String, String>> host;
+    @JsonDeserialize(using = JsonMapMapObjectDeserializer.class)
+    private Map<String, Map<String, Object>> host;
 
-    @JsonAnyGetter
-    @JsonDeserialize(using = JsonMapMapDeserializer.class)
-    private Map<String, Map<String, String>> guest;
+    @JsonDeserialize(using = JsonMapMapObjectDeserializer.class)
+    private Map<String, Map<String, Object>> guest;
+
+    @JsonDeserialize(using = JsonMapMapObjectDeserializer.class)
+    private Map<String, Map<String, Object>> arbiter;
 
 }

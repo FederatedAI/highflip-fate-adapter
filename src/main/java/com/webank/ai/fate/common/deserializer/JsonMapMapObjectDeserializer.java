@@ -8,31 +8,31 @@ import com.fasterxml.jackson.databind.deser.std.StdDeserializer;
 
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 
-public class JsonMapListStringDeserializer extends StdDeserializer<Map<String,List<String>>> {
+public class JsonMapMapObjectDeserializer extends StdDeserializer<Map<String, Map<String, Object>>> {
 
-    protected JsonMapListStringDeserializer() {
+    public JsonMapMapObjectDeserializer() {
         super(Map.class);
     }
 
     @Override
-    public Map<String, List<String>> deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
+    public Map<String, Map<String, Object>> deserialize(JsonParser jsonParser, DeserializationContext context)
             throws IOException {
-        Map<String, List<String>> ret = new HashMap<>();
-        Map<String, Object> temp = jsonParser.getCodec().readValue(jsonParser, new TypeReference<Map<String, Object>>() {
-        });
+        Map<String, Map<String, Object>> ret = new HashMap<>();
+        TypeReference<Map<String, Object>> typeReference = new TypeReference<>() {
+        };
+        Map<String, Object> temp = jsonParser.getCodec().readValue(jsonParser, typeReference);
         for (String key : temp.keySet()) {
             Object tempValue = temp.get(key);
             if (tempValue != null) {
                 ObjectMapper objectMapper = new ObjectMapper();
                 String decode = objectMapper.writeValueAsString(tempValue);
-                List<String> temp1 = objectMapper.readValue(decode, new TypeReference<List<String>>() {
-                });
+                Map<String, Object> temp1 = objectMapper.readValue(decode, typeReference);
                 ret.put(key, temp1);
             }
         }
         return ret;
     }
+
 }

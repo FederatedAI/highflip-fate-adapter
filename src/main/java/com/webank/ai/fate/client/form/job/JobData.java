@@ -13,6 +13,6 @@ public class JobData {
 
     private int count;
 
-    private List<Jobs> jobs;
+    private List<FateJob> jobs;
 
 }

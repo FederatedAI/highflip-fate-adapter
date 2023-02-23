@@ -27,10 +27,9 @@ public class FateContext {
 
         Configuration config = (Configuration) register.getInstance(InstanceNameList.HIGHFLIP_CONFIGURATION);
         context.setConfig(config);
-        String clientUrl = "172.16.153.188:9381";
+        String clientUrl = "http://127.0.0.1:9380";
         log.info("connecting to client:{}", clientUrl);
         context.setClient(FateClient.connect(clientUrl));
-
         return context;
     }
 }

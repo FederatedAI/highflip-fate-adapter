@@ -1,6 +1,5 @@
 package com.webank.ai.fate.client.form.dsl;
 
-import com.fasterxml.jackson.annotation.JsonAnyGetter;
 import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.webank.ai.fate.common.deserializer.JsonMapListStringDeserializer;
 import lombok.Data;
@@ -15,7 +14,6 @@ public class DslConf {
 
     private Site initiator;
 
-    @JsonAnyGetter
     @JsonDeserialize(using = JsonMapListStringDeserializer.class)
     private Map<String, List<String>> role;
 

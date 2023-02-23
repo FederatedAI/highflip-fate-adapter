@@ -1,18 +1,22 @@
 
 package com.webank.ai.fate.client.form.task;
-import com.baidu.highflip.core.entity.runtime.Task;
-import lombok.Data;
 
-import java.time.ZoneId;
-import java.util.List;
+import com.baidu.highflip.core.entity.runtime.Task;
+import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
+import com.webank.ai.fate.common.deserializer.JsonListDeserializer;
+import lombok.Data;
+import org.joda.time.DateTime;
+
 import java.util.Date;
+import java.util.List;
 
 
 @Data
-public class Tasks {
+public class FateTask {
 
     private int auto_retries;
     private int auto_retry_delay;
+    @JsonDeserialize(using = JsonListDeserializer.class)
     private List<String> cmd;
     private String component_module;
     private String component_name;
@@ -41,15 +45,15 @@ public class Tasks {
     private Date update_time;
     private String worker_id;
 
-    public static Task convertToEntity(Tasks data) {
+    public static Task convertToEntity(FateTask data) {
         Task task = new Task();
 //        task.setTaskid();
         task.setJobid(data.getJob_id());
         task.setName(data.getComponent_name());
 //        task.setDescription();
-        task.setCreateTime(data.getCreate_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        task.setUpdateTime(data.getUpdate_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
-        task.setFinishTime(data.getEnd_time().toInstant().atZone(ZoneId.systemDefault()).toLocalDateTime());
+        task.setCreateTime(new DateTime(data.getCreate_time()));
+        task.setUpdateTime(new DateTime(data.getUpdate_time()));
+        task.setFinishTime(new DateTime(data.getEnd_time()));
         task.setNodeName(data.getComponent_name());
         task.setStatus(data.getStatus());
 //        task.setMessage();

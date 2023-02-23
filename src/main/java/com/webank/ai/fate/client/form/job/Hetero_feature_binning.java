@@ -4,8 +4,6 @@
 
 package com.webank.ai.fate.client.form.job;
 
-import com.webank.ai.fate.client.form.job.Transform_param;
-
 public class Hetero_feature_binning {
 
     private Transform_param transform_param;
