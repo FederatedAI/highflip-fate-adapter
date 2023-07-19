@@ -29,6 +29,7 @@ public class FateTask {
     private String federated_status_collect_type;
     private String initiator_party_id;
     private String initiator_role;
+    // job_id is the job id in FATE
     private String job_id;
     private String party_id;
     private String party_status;

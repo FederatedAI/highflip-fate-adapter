@@ -4,9 +4,11 @@ import com.baidu.highflip.core.entity.dag.Graph;
 import com.baidu.highflip.core.entity.dag.Node;
 import com.baidu.highflip.core.entity.dag.Party;
 import com.baidu.highflip.core.entity.dag.PartyNode;
+import com.baidu.highflip.core.entity.dag.codec.TypeValue;
+import com.baidu.highflip.core.entity.dag.common.NodeInputRef;
+import com.baidu.highflip.core.entity.dag.common.NodeOutputRef;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import com.webank.ai.fate.client.form.dsl.Component;
 import com.webank.ai.fate.client.form.dsl.ComponentParameters;
 import com.webank.ai.fate.client.form.dsl.Dsl;
@@ -14,8 +16,10 @@ import com.webank.ai.fate.client.form.dsl.DslConf;
 import com.webank.ai.fate.client.form.dsl.Input;
 import com.webank.ai.fate.client.form.dsl.Output;
 import com.webank.ai.fate.client.form.dsl.RoleConf;
-import com.webank.ai.fate.common.deserializer.JsonListDeserializer;
+import com.webank.ai.fate.client.form.dsl.Site;
 import com.webank.ai.fate.common.deserializer.SerializerUtils;
+
+import highflip.HighflipMeta;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
@@ -26,9 +30,15 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+import org.springframework.util.CollectionUtils;
+
 @Slf4j
 @Data
 public class DSLTranslator {
+
+    String partyId;
+
+    String role;
 
     public FateDAG translate(Graph dag) {
         Map<String, Component> componentMap = new HashMap<>();
@@ -44,7 +54,8 @@ public class DSLTranslator {
             component.setModule(node.getType());
             Map<String, Object> conf = new HashMap<>();
             for (String key : node.getAttributes().keySet()) {
-                conf.put(key, node.getAttribute(key, null));
+                conf.put(key, TypeValue.fromProto(
+                        (HighflipMeta.TypedValueProto) node.getAttribute(key, null)));
             }
             componentConfMap.put(node.getName(), conf);
             componentMap.put(node.getName(), component);
@@ -111,6 +122,11 @@ public class DSLTranslator {
         FateDAG fateDAG = new FateDAG();
         fateDAG.setDsl(dsl);
         fateDAG.setConf(dslConf);
+        // set initiator to fateDAG
+        Site initiator = new Site();
+        initiator.setRole(this.role);
+        initiator.setParty_id(this.partyId);
+        fateDAG.getConf().setInitiator(initiator);
         return fateDAG;
     }
 
@@ -216,17 +232,32 @@ public class DSLTranslator {
         }
     }
 
-    private Map<String, String> transInput(Input input) {
+    private Map<String, NodeInputRef> transInput(Input input) {
         try {
-            Map<String, String> map = new HashMap<>();
+            Map<String, NodeInputRef> map = new HashMap<>();
             if (input.getData() != null) {
-                map.put("data", SerializerUtils.toJsonString(input.getData()));
+                HighflipMeta.NodeInputProto nodeInputProto =
+                        HighflipMeta.NodeInputProto.newBuilder()
+                                                   .setName("data")
+                                                   .setValue(SerializerUtils.toJsonString(input.getData()))
+                                                   .build();
+                map.put("data", NodeInputRef.fromProto(nodeInputProto));
             }
             if (input.getModel() != null) {
-                map.put("model", SerializerUtils.toJsonString(input.getModel()));
+                HighflipMeta.NodeInputProto nodeInputProto =
+                        HighflipMeta.NodeInputProto.newBuilder()
+                                                   .setName("model")
+                                                   .setValue(SerializerUtils.toJsonString(input.getModel()))
+                                                   .build();
+                map.put("model", NodeInputRef.fromProto(nodeInputProto));
             }
             if (input.getCache() != null) {
-                map.put("cache", SerializerUtils.toJsonString(input.getCache()));
+                HighflipMeta.NodeInputProto nodeInputProto =
+                        HighflipMeta.NodeInputProto.newBuilder()
+                                                   .setName("cache")
+                                                   .setValue(SerializerUtils.toJsonString(input.getCache()))
+                                                   .build();
+                map.put("cache", NodeInputRef.fromProto(nodeInputProto));
             }
             return map;
         } catch (JsonProcessingException e) {
@@ -234,55 +265,92 @@ public class DSLTranslator {
         }
     }
 
-    private Input transInput(Map<String, String> map) {
+    private Input transInput(Map<String, NodeInputRef> map) {
         try {
-            if (map == null) {
+            if (map == null || CollectionUtils.isEmpty(map)) {
                 return null;
             }
             Input input = new Input();
             TypeReference<Map<String, List<String>>> typeReference = new TypeReference<>() {
             };
-            String content = map.get("data");
-            Map<String, List<String>> data = SerializerUtils.deserializeType(content, typeReference);
+            if (map.containsKey("data")) {
+                String content = map.get("data").getValue();
+                Map<String, List<String>> data =
+                        SerializerUtils.deserializeType(content, typeReference);
+                input.setData(data);
+            }
             TypeReference<List<String>> typeReference2 = new TypeReference<>() {
             };
-            List<String> model = SerializerUtils.deserializeType(map.get("model"), typeReference2);
-            List<String> cache = SerializerUtils.deserializeType(map.get("cache"), typeReference2);
-            input.setData(data);
-            input.setModel(model);
-            input.setCache(cache);
+            if (map.containsKey("model")) {
+                List<String> model = SerializerUtils.deserializeType(map.get(
+                        "model").getValue(), typeReference2);
+                input.setModel(model);
+            }
+
+            if (map.containsKey("cache")) {
+                List<String> cache = SerializerUtils.deserializeType(map.get(
+                        "cache").getValue(), typeReference2);
+                input.setCache(cache);
+            }
             return input;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Map<String, String> transOutput(Output output) {
+    private Map<String, NodeOutputRef> transOutput(Output output) {
         try {
-            Map<String, String> map = new HashMap<>();
-            map.put("data", SerializerUtils.toJsonString(output.getData()));
-            map.put("model", SerializerUtils.toJsonString(output.getModel()));
-            map.put("cache", SerializerUtils.toJsonString(output.getCache()));
+            Map<String, NodeOutputRef> map = new HashMap<>();
+            HighflipMeta.NodeOutputProto dataNodeOutputProto =
+                    HighflipMeta.NodeOutputProto.newBuilder()
+                                               .setName("data")
+                                               .setValue(SerializerUtils.toJsonString(output.getData()))
+                                               .build();
+            map.put("data", NodeOutputRef.fromProto(dataNodeOutputProto));
+
+            HighflipMeta.NodeOutputProto modelNodeOutputProto =
+                    HighflipMeta.NodeOutputProto.newBuilder()
+                                                .setName("model")
+                                                .setValue(SerializerUtils.toJsonString(output.getModel()))
+                                                .build();
+            map.put("model", NodeOutputRef.fromProto(modelNodeOutputProto));
+
+            HighflipMeta.NodeOutputProto cacheNodeOutputProto =
+                    HighflipMeta.NodeOutputProto.newBuilder()
+                                                .setName("cache")
+                                                .setValue(SerializerUtils.toJsonString(output.getCache()))
+                                                .build();
+            map.put("cache", NodeOutputRef.fromProto(cacheNodeOutputProto));
             return map;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);
         }
     }
 
-    private Output transOutput(Map<String, String> map) {
+    private Output transOutput(Map<String, NodeOutputRef> map) {
         try {
-            if (map == null) {
+            if (map == null || CollectionUtils.isEmpty(map)) {
                 return null;
             }
             TypeReference<List<String>> typeReference2 = new TypeReference<>() {
             };
-            List<String> data = SerializerUtils.deserializeType(map.get("data"), typeReference2);
-            List<String> model = SerializerUtils.deserializeType(map.get("model"), typeReference2);
-            List<String> cache = SerializerUtils.deserializeType(map.get("cache"), typeReference2);
             Output output = new Output();
-            output.setData(data);
-            output.setModel(model);
-            output.setCache(cache);
+            if (map.containsKey("data")) {
+                List<String> data = SerializerUtils.deserializeType(
+                        map.get("data").getValue(), typeReference2);
+                output.setData(data);
+            }
+            if (map.containsKey("model")) {
+                List<String> model = SerializerUtils.deserializeType(
+                        map.get("model").getValue(), typeReference2);
+                output.setModel(model);
+
+            }
+            if (map.containsKey("cache")) {
+                List<String> cache = SerializerUtils.deserializeType(
+                        map.get("cache").getValue(), typeReference2);
+                output.setCache(cache);
+            }
             return output;
         } catch (JsonProcessingException e) {
             throw new RuntimeException(e);

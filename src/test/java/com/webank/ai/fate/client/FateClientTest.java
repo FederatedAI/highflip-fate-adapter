@@ -28,7 +28,7 @@ import java.util.Map;
 @Disabled
 public class FateClientTest {
 
-    public static final String TEST_FLOW_URL = "http://172.16.153.108:9380";
+    public static final String TEST_FLOW_URL = "http://10.27.130.41:8380";
 
     FateClient client = FateClient.connect(TEST_FLOW_URL);
 
@@ -65,7 +65,7 @@ public class FateClientTest {
                 + "551,1,-0.879933,0.420589,-0.877527,-0.780484,-1.037534,-0.48388\n"
                 + "175,1,-1.451067,-1.406518,-1.456564,-1.092337,-0.708765,-1.168557\n";
         MultipartFile multipartFile = new DataMultipartFile("unittest_data3.csv", data.getBytes(StandardCharsets.UTF_8));
-        ResultForm<?> resultForm = getClient().pushData(multipartFile, ",", "1", "4", "highflip_test1", "experiment", null, null, null);
+        ResultForm<?> resultForm = getClient().pushData(multipartFile, ",", "1", "4", "highflip_test1", "experiment", null, null, null,"1");
         log.info("result = {}", resultForm);
     }
 
@@ -133,6 +133,22 @@ public class FateClientTest {
     public void testDownloadData() {
         try(Response response = getClient().downloadData("unittest_data3", "experiment")) {
             InputStream inputStream = response.body().asInputStream();
+            Map<String, String> result = DecompressUtils.decompressTarGzToStringMap(inputStream, s -> s.contains("csv"));
+            log.info("result = {}, head = {}", result, response.headers());
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+    }
+
+    @Test
+    public void testDownloadComponentResultData(){
+        String jobId = "202305231618271012050";
+        String componentName = "intersect_0";
+        String role = "guest";
+        String partyId = "9999";
+        try (Response response = getClient().downloadComponentResultData(jobId, componentName, role, partyId)) {
+            InputStream inputStream = response.body().asInputStream();
+
             Map<String, String> result = DecompressUtils.decompressTarGzToStringMap(inputStream, s -> s.contains("csv"));
             log.info("result = {}, head = {}", result, response.headers());
         } catch (IOException e) {
