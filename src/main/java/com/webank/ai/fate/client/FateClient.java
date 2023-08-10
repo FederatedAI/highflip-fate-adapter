@@ -8,6 +8,7 @@ import com.webank.ai.fate.client.form.dsl.DslConf;
 import com.webank.ai.fate.client.form.job.FateJob;
 import com.webank.ai.fate.client.form.job.JobData;
 import com.webank.ai.fate.client.form.job.QueryJob;
+import com.webank.ai.fate.client.form.task.FFateTask;
 import com.webank.ai.fate.client.form.task.TaskData;
 import com.webank.ai.fate.common.deserializer.FeignSpringFormEncoder;
 import feign.Feign;
@@ -52,7 +53,7 @@ public interface FateClient {
 
     @RequestLine("POST /v1/job/task/query")
     @Headers("Content-Type: application/json")
-    ResultForm<List<QueryJob>> taskQuery(@Param("task_id") String taskId);
+    ResultForm<List<FFateTask>> taskQuery(@Param("task_id") String taskId);
 
     @RequestLine("POST /v1/job/list/task")
     @Headers("Content-Type: application/json")
@@ -74,6 +75,19 @@ public interface FateClient {
             @Param(value = "id_delimiter") String id_delimiter, @Param(value = "head") String head,
             @Param(value = "partition") String partition, @Param(value = "table_name") String table_name,
             @Param(value = "namespace") String namespace, @Param(value = "storage_engine") String storage_engine,
-            @Param(value = "destory") String destory, @Param(value = "extend_sid") String extend_sid);
+            @Param(value = "destroy") String destroy, @Param(value = "extend_sid") String extend_sid,
+            @Param(value = "drop") String drop);
+
+    @RequestLine("POST /v1/data/upload/history")
+    @Headers("Content-Type: application/json")
+    ResultForm<Data> getDataUploadHistory(@Param(value = "limit") int limit,
+    @Param(value = "job_id") String job_id);
+
+    @RequestLine("GET /v1/tracking/component/output/data/download")
+    @Headers("Content-Type: application/json")
+    Response downloadComponentResultData(@Param(value = "job_id") String tableName,
+            @Param(value = "component_name") String component_name,
+            @Param(value = "role") String role,
+            @Param(value = "party_id") String party_id);
 
 }

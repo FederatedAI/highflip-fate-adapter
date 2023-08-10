@@ -29,6 +29,7 @@ public class FateTask {
     private String federated_status_collect_type;
     private String initiator_party_id;
     private String initiator_role;
+    // job_id is the job id in FATE
     private String job_id;
     private String party_id;
     private String party_status;
@@ -47,10 +48,8 @@ public class FateTask {
 
     public static Task convertToEntity(FateTask data) {
         Task task = new Task();
-//        task.setTaskid();
-        task.setJobid(data.getJob_id());
+//        task.setJobid(data.getJob_id());
         task.setName(data.getComponent_name());
-//        task.setDescription();
         task.setCreateTime(new DateTime(data.getCreate_time()));
         task.setUpdateTime(new DateTime(data.getUpdate_time()));
         task.setFinishTime(new DateTime(data.getEnd_time()));

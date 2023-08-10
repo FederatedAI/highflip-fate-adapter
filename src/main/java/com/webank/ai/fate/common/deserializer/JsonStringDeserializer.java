@@ -17,7 +17,7 @@ public class JsonStringDeserializer extends StdDeserializer<String> {
     public String deserialize(JsonParser jsonParser, DeserializationContext deserializationContext)
             throws IOException {
         JsonNode node = jsonParser.getCodec().readTree(jsonParser);
-        return node.toString();
+        return node.toString().replace("\"", "");
     }
 
 }
